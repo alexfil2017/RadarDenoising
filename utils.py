@@ -68,3 +68,16 @@ def geometricMean(im):
         res = res*im[:,:,k]
     res = res**(1/l)
     return res
+
+def aritmeticMean(im):
+    """
+    compute the aritmetic mean of a multitemporal series. Takes the amplitude of
+    the multitemporal series as a parameter, computes its intensity, computes
+    the mean on the intensity
+    """
+    l = im.shape[2]
+    res = im[:,:,0]**2
+    for k in range(1,l):
+        res = res+im[:,:,k]**2
+    res = np.sqrt(res/l)
+    return res
