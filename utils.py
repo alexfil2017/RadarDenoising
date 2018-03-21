@@ -69,6 +69,7 @@ def geometricMean(im):
     res = res**(1/l)
     return res
 
+
 def aritmeticMean(im):
     """
     compute the aritmetic mean of a multitemporal series. Takes the amplitude of
@@ -81,3 +82,32 @@ def aritmeticMean(im):
         res = res+im[:,:,k]**2
     res = np.sqrt(res/l)
     return res
+
+def min_max_scale(image, normal=True):
+    """
+    image between 0 and 1 or 0 and 255
+    according to normal
+    """
+    img = image.copy()
+    out = (img-img.min())/(img.max()-img.min())
+    if(normal):
+        out = out * 255
+        return out.astype(np.uint8)
+    else:
+        return out
+def quant_thresh(img):
+    """
+    threshold the image according to the quantile
+    """
+    pmax = np.percentile(img, 99)
+    pmin = np.percentile(img, 1)
+    out = img.copy()
+    out[img>pmax] = pmax
+    out[img<pmin] = pmin
+    return out
+
+def robust_scale(img):
+    """
+    perform log + quantile threshold+ min_max_thresh
+    """
+    return min_max_scale(quant_thresh(np.log(img)))
