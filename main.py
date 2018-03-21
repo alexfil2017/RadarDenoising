@@ -4,7 +4,7 @@ from glob import glob
 import tensorflow as tf
 
 from model import denoiser
-from utils import *
+from utils_train import *
 
 parser = argparse.ArgumentParser(description='')
 parser.add_argument('--epoch', dest='epoch', type=int, default=50, help='# of epoch')
@@ -18,11 +18,12 @@ parser.add_argument('--sample_dir', dest='sample_dir', default='./sample', help=
 parser.add_argument('--test_dir', dest='test_dir', default='./test', help='test sample are saved here')
 parser.add_argument('--eval_set', dest='eval_set', default='Set12', help='dataset for eval in training')
 parser.add_argument('--test_set', dest='test_set', default='BSD68', help='dataset for testing')
+parser.add_argument('--patch', dest='patch', default='./data/img_clean_pats.npy', help='file of patch')
 args = parser.parse_args()
 
 
 def denoiser_train(denoiser, lr):
-    with load_data(filepath='./data/img_clean_pats.npy') as data:
+    with load_data(filepath=args.patch) as data:
         # if there is a small memory, please comment this line and uncomment the line99 in model.py
         data = data.astype(np.float32) / 255.0  # normalize the data to 0-1
         eval_files = glob('./data/test/{}/*.png'.format(args.eval_set))
