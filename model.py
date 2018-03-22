@@ -6,7 +6,7 @@ from utils_train import *
 def dncnn(input, is_training=True, output_channels=1):
     with tf.variable_scope('block1'):
         output = tf.layers.conv2d(input, 64, 3, padding='same', activation=tf.nn.relu)
-    for layers in xrange(2, 16 + 1):
+    for layers in range(2, 16 + 1):
         with tf.variable_scope('block%d' % layers):
             output = tf.layers.conv2d(output, 64, 3, padding='same', name='conv%d' % layers, use_bias=False)
             output = tf.nn.relu(tf.layers.batch_normalization(output, training=is_training))
@@ -37,12 +37,14 @@ class denoiser(object):
         init = tf.global_variables_initializer()
         self.sess.run(init)
         print("[*] Initialize model successfully...")
+        
+   
 
     def evaluate(self, iter_num, test_data, sample_dir, summary_merged, summary_writer):
         # assert test_data value range is 0-255
         print("[*] Evaluating...")
         psnr_sum = 0
-        for idx in xrange(len(test_data)):
+        for idx in range(len(test_data)):
             clean_image = test_data[idx].astype(np.float32) / 255.0
             output_clean_image, noisy_image, psnr_summary = self.sess.run(
                 [self.Y, self.X, summary_merged],
@@ -92,7 +94,7 @@ class denoiser(object):
         start_time = time.time()
         self.evaluate(iter_num, eval_data, sample_dir=sample_dir, summary_merged=summary_psnr,
                       summary_writer=writer)  # eval_data value range is 0-255
-        for epoch in xrange(start_epoch, epoch):
+        for epoch in range(start_epoch, epoch):
             np.random.shuffle(data)
             for batch_id in range(start_step, numBatch):
                 batch_images = data[batch_id * batch_size:(batch_id + 1) * batch_size, :, :, :]
@@ -109,7 +111,7 @@ class denoiser(object):
                               summary_writer=writer)  # eval_data value range is 0-255
                 self.save(iter_num, ckpt_dir)
         print("[*] Finish training.")
-
+    
     def save(self, iter_num, ckpt_dir, model_name='DnCNN-tensorflow'):
         saver = tf.train.Saver()
         checkpoint_dir = ckpt_dir
@@ -132,6 +134,7 @@ class denoiser(object):
         else:
             return False, 0
 
+        
     def test(self, test_files, ckpt_dir, save_dir):
         """Test DnCNN"""
         # init variables
@@ -157,3 +160,6 @@ class denoiser(object):
             save_images(os.path.join(save_dir, 'denoised%d.png' % idx), outputimage)
         avg_psnr = psnr_sum / len(test_files)
         print("--- Average PSNR %.2f ---" % avg_psnr)
+     
+       
+    

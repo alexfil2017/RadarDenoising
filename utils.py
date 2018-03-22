@@ -106,8 +106,8 @@ def quant_thresh(img):
     out[img<pmin] = pmin
     return out
 
-def robust_scale(img):
+def robust_scale(img, normal=True):
     """
     perform log + quantile threshold+ min_max_thresh
     """
-    return min_max_scale(quant_thresh(np.log(img)))
+    return min_max_scale(quant_thresh(np.log(img)), normal=normal)
