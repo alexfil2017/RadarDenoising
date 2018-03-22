@@ -49,7 +49,7 @@ def div(gradx,grady):
     return d
 
 
-def TVgaussianDenoiser(im,lamb,niter):
+def TVgaussianDenoiser(im,oldlamb,niter):
     """ returns the denoised image with a gaussian denoiser with
     a  TV regularization
     input:
@@ -65,12 +65,12 @@ def TVgaussianDenoiser(im,lamb,niter):
     #INITIALIZE PARAMETERS
     nx, ny = np.shape(im)
     E = np.zeros(niter)
-    ubar = im
-    u = im
-    lamb = lamb*scipy.special.polygamma(1, 1)
-    tau = 0.99/(np.sqrt(8)*lamb**2)
-    sigma = tau
-    theta = 0.5
+    ubar = im.copy()
+    u = im.copy()
+    lamb = oldlamb*scipy.special.polygamma(1, 1)
+    tau = 0.99/(np.sqrt(8)*lamb)
+    sigma = 0.99/(np.sqrt(8)*lamb)
+    theta = 1
     # print ( theta )
     px = np.zeros((nx,ny))
     py = np.zeros((nx,ny))
@@ -80,15 +80,19 @@ def TVgaussianDenoiser(im,lamb,niter):
         gradx, grady = grad(ubar)
         px += sigma *  lamb * gradx
         py += sigma * lamb * grady
-        norm = np.multiply(px,px) + np.multiply(py,py)
 
-        px[norm>1] = np.divide(px[norm>1],np.sqrt(norm[norm >1]))
-        py[norm>1] = np.divide(py[norm>1],np.sqrt(norm[norm >1]))
+
+        norm = np.multiply(px,px) + np.multiply(py,py)
+        normtest = norm.copy()
+        norm[norm <= 1] = 1.
+
+        px= np.divide(px,np.sqrt(norm))
+        py= np.divide(py,np.sqrt(norm))
 
         d = div(px,py)
 
-
-        unew = 1/(1+tau)*(u+tau*lamb*d+tau*im)
+        ubar = -theta * u
+        u = (u+tau*lamb*d+tau*im)/(1+tau)
 
         # v = u+tau*lamb*d
         #
@@ -97,9 +101,8 @@ def TVgaussianDenoiser(im,lamb,niter):
 
 
 
-        ubar = unew+theta*(unew-u)
-        u = unew
-
+        ubar = ubar+(1+theta)*u
+        
         gradx, grady = grad(u)
         E[k] = 0.5*np.sum((u-im)**2) + lamb*np.sum(np.sqrt(gradx**2 + grady**2))
         # print("iteration {}".format(k),": E = {}\n".format(E[k]))
