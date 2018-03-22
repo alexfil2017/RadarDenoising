@@ -1,0 +1,2 @@
+model_checkpoint_path: "DnCNN-tensorflow-88600"
+all_model_checkpoint_paths: "DnCNN-tensorflow-88600"
