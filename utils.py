@@ -24,7 +24,7 @@ def displayRSO(im,k=3):
     im[mask] = maxvalue
     # plt.figure()
     plt.imshow(im, cmap= 'gray')
-    plt.show()
+    
 
 
 def addSARnoise(ima, L=1, intensite = True) :

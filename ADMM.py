@@ -18,8 +18,14 @@ def ADMM(im, beta,lamb, niter, CNNprior = None):
             print("CNNprior not included yet")
             v=x-d
             shape = v.shape
+            C = np.max(v)-np.min(v)
+            if(C != 0):
+                b = v.min()/C
+                v = v/C - b
             z, _, _ = CNNprior.denoise(v.reshape(1,shape[1], shape[0],1))
             z = z.reshape(shape)
+            if(C != 0):
+                z = C*(z+b)
 
 
         else :

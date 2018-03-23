@@ -93,6 +93,9 @@ def cal_psnr(im1, im2):
     psnr = 10 * np.log10(255 ** 2 / mse)
     return psnr
 
+def cal_mse(im1, im2):
+    return ((im1.astype(np.float) - im2.astype(np.float)) ** 2).mean()
+
 
 def tf_psnr(im1, im2):
     # assert pixel value range is 0-1
