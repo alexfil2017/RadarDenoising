@@ -19,9 +19,11 @@ parser.add_argument('--batch_size', dest='bat_size', type=int, default=128, help
 # check output arguments
 parser.add_argument('--from_file', dest='from_file', default="./data/img_clean_pats_sar.npy", help='get pic from file')
 parser.add_argument('--num_pic', dest='num_pic', type=int, default=10, help='number of pic to pick')
+parser.add_argument('--is_robust', dest='is_robust', type=bool, default=True, help='apply normalization')
+parser.add_argument('--name_file', dest='name_file', default='img_clean_pats_sar')
 args = parser.parse_args()
 
-def generate_patches(filepath, isDebug=False, step=0, stride=10, pat_size=40, bat_size=128):
+def generate_patches(filepath, isDebug=False, step=0, stride=10, pat_size=40, bat_size=128, is_robust=True):
     """
     This function generates patches
     """
@@ -48,6 +50,7 @@ def generate_patches(filepath, isDebug=False, step=0, stride=10, pat_size=40, ba
     
     if origin_patch_num % bat_size != 0:
         numPatches = int((origin_patch_num / bat_size + 1) * bat_size)
+        
     else:
         numPatches = origin_patch_num
     print("total patches = %d , batch size = %d, total batches = %d" % 
@@ -60,7 +63,10 @@ def generate_patches(filepath, isDebug=False, step=0, stride=10, pat_size=40, ba
     # generate patches
     for i in range(len(filepaths)):
         img = imz2mat(filepaths[i])[0]
-        img = robust_scale(img)
+        if(is_robust):
+            img = robust_scale(img)
+        else:
+            img = min_max_scale(np.log(1+img))
         for s in range(len(scales)):
             newsize = (int(img.shape[0] * scales[s]), int(img.shape[1] * scales[s]))
             # print newsize
@@ -82,7 +88,7 @@ def generate_patches(filepath, isDebug=False, step=0, stride=10, pat_size=40, ba
         
     if not os.path.exists(args.save_dir):
         os.mkdir(args.save_dir)
-    np.save(os.path.join(args.save_dir, "img_clean_pats_sar"), inputs)
+    np.save(os.path.join(args.save_dir, args.name_file), inputs)
     print("size of inputs tensor = " + str(inputs.shape))
     
     return inputs
