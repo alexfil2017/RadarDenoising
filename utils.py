@@ -1,11 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from imz2mat import *
+import scipy
 
 
 
-
-def displayRSO(im,k=3):
+def displayRSO(im,k=3, is_display=True, path='test.png'):
     """
     parameters
     ---
@@ -23,8 +23,10 @@ def displayRSO(im,k=3):
     mask = im >= maxvalue
     im[mask] = maxvalue
     # plt.figure()
-    plt.imshow(im, cmap= 'gray')
-    
+    if(is_display):
+        plt.imshow(im, cmap= 'gray')
+    else:
+        plt.imsave(path,im, format='png',cmap='gray',dpi=1200)
 
 
 def addSARnoise(ima, L=1, intensite = True) :
@@ -111,3 +113,9 @@ def robust_scale(img, normal=True):
     perform log + quantile threshold+ min_max_thresh
     """
     return min_max_scale(quant_thresh(np.log(img)), normal=normal)
+
+def debiased(L):
+    """
+    a debias when we apply the homomorphic transform
+    """
+    return np.log(L)-scipy.special.digamma(L)

@@ -2,7 +2,7 @@ import GaussianDenoiser as gd
 import numpy as np
 import scipy
 
-def ADMM(im, beta,lamb, niter, CNNprior = None):
+def ADMM(im, beta,lamb, niter, CNNprior = None, verbose=False):
     "computes the denoising of im (log of intensity) with ADMM"
 
 
@@ -15,7 +15,8 @@ def ADMM(im, beta,lamb, niter, CNNprior = None):
     for k in range(niter):
         #compute the proximal of the regularisation term
         if (CNNprior is not None):
-            print("CNNprior not included yet")
+            if(verbose):
+                print("iteration for the CNN: "+str(k))
             v=x-d
             shape = v.shape
             C = np.max(v)-np.min(v)
