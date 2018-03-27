@@ -75,10 +75,8 @@ model = denoiser(sess, sigma=25, add_noise=False)
 
 list_ckp = ["./checkpoint", "./checkpoint_sar","checkpoint_sar_norm", "./checkpoint_sar_1"]
 list_name=["DuCNN25Nat", "DuCNN25Sar_quant", "DuCNN25Sar", "DuCNN13SarQuant"]
-if(args.L==1):
-    list_beta=[2,2,2]
-else:
-    list_beta=[1,1,1]
+
+list_beta=[1,1,1]
 for i in range(len(list_beta)):
     
     ckpt_dir = list_ckp[i]
