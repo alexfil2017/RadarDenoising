@@ -41,8 +41,8 @@ res = "MSE without denoising : {}".format(cal_mse(np.exp(img_gt_log)-1, np.exp(i
 print(res)
 file.write(res+'\n')
 utils.displayRSO(np.sqrt(img_gt),is_display=False, path='{0}/ground_truth.png'.format(args.out_dir))
-utils.displayRSO(np.sqrt(img_in),is_display=False, path='{0}/noisy_image_L{1}.png'.format(args.out_dir, args.L))
-utils.displayRSO(np.sqrt(img_in[200:400,500:700]),is_display=False,
+utils.displayRSO(np.sqrt(img_speckle),is_display=False, path='{0}/noisy_image_L{1}.png'.format(args.out_dir, args.L))
+utils.displayRSO(np.sqrt(img_speckle[200:400,500:700]),is_display=False,
                  path='{0}/noisy_image_detail_L{1}.png'.format(args.out_dir, args.L))
 
 
