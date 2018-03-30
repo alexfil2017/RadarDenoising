@@ -57,7 +57,7 @@ if(True):
     img_gt_log = np.log(1+img_gt)
     img_in = np.log(1+img_speckle)
 
-    out, E = ADMM.ADMM(img_in, beta = 0.7,lamb = 1,niter = 10)
+    out, E = ADMM.ADMM(img_in, beta = 0.7,lamb = 1,niter = 10, L=args.L)
     print(cal_mse(np.exp(img_gt_log)-1, np.exp(out)-1))
     mse_pock = cal_mse(np.exp(img_gt_log)-1, np.exp(out)-1)
     exp_out = np.exp(out)-1
@@ -71,12 +71,14 @@ if(True):
 # experiment 2 : We denoise this image using a CNN Gaussian Denoiser(train with quantile) with all sigma
 # Goal see the influence of the CNN
 #---------------------------------------------------------------------------
+list_ckp = ["./checkpoint", "./checkpoint_sar","checkpoint_sar_norm", "./checkpoint_sar_1"]
+list_name=["DuCNN25Nat", "DuCNN25Sar_quant", "DuCNN25Sar", "DuCNN13SarQuant"]
+list_lamb = [1,1,1,3]
 if(True):
     print("eperiment 2:")
     model = denoiser(sess, sigma=25, add_noise=False)
 
-    list_ckp = ["./checkpoint", "./checkpoint_sar","checkpoint_sar_norm", "./checkpoint_sar_1"]
-    list_name=["DuCNN25Nat", "DuCNN25Sar_quant", "DuCNN25Sar", "DuCNN13SarQuant"]
+    
 
     list_beta=[1,1,1,4]
     for i in range(len(list_beta)):
@@ -115,7 +117,7 @@ if(True):
     for i in range(len(list_beta)):
         ckpt_dir = list_ckp[i]
         model.load(ckpt_dir)
-        out3, E = ADMM.ADMM(img_in, beta = list_beta[i],lamb = 1,niter = 10, CNNprior=model)
+        out3, E = ADMM.ADMM(img_in, beta = list_beta[i],lamb = list_lamb[i],niter = 10,L=args.L, CNNprior=model)
         mse_cnn = cal_mse(np.exp(img_gt_log)-1, np.exp(out3)-1)
         exp_out3 = np.exp(out3)-1
         utils.displayRSO(np.sqrt(exp_out3),is_display=False, path='{0}/{1}_ADMM_L{2}.png'.format(args.out_dir,
@@ -131,30 +133,34 @@ if(True):
 
 #---------------------------------------------------------------------------
 # experiment 4 : We use ADMM + DuCNN
-#Goal : see the influence of beta
+#Goal : see the influence of beta and lambda
 # 
 #we just change the CNN
 # We try with just 1 dataset
 #---------------------------------------------------------------------------
 if(True):
     list_beta = [0.2,0.5,1,2,7,20]
+    list_lamb = [0.1,0.5,1,2,10]
     ckpt_dir = "./checkpoint_sar"
     model.load(ckpt_dir)
     #model = None
     for beta in list_beta:
-        out4, E = ADMM.ADMM(img_in, beta = beta,lamb = 1,niter = 10, CNNprior=model)
-        mse_cnn = cal_mse(np.exp(img_gt_log)-1, np.exp(out4)-1)
-        exp_out4 = np.exp(out4)-1
-        utils.displayRSO(np.sqrt(exp_out4),is_display=False, path='{0}/{1}_ADMM_L{2}.png'.format(args.out_dir,
-                                                                                    beta,
-                                                                                    args.L))
-        utils.displayRSO(np.sqrt(exp_out4[200:400,500:700]),is_display=False,
-                         path='{0}/{1}_detail_ADMM_L{2}.png'.format(args.out_dir,
-                                                                    beta,
-                                                                    args.L))
-        res="MSE for {0}: {1}".format(beta, mse_cnn)
-        print(res)
-        file.write(res+'\n')
+        for lamb in list_lamb:
+            out4, E = ADMM.ADMM(img_in, beta = beta,lamb = lamb,niter = 10,L=args.L, CNNprior=model)
+            mse_cnn = cal_mse(np.exp(img_gt_log)-1, np.exp(out4)-1)
+            exp_out4 = np.exp(out4)-1
+            utils.displayRSO(np.sqrt(exp_out4),is_display=False, path='{0}/{1}_{2}_ADMM_L{3}.png'.format(args.out_dir,
+                                                                                                         int(lamb*100),
+                                                                                                         int(beta*100),
+                                                                                                         args.L))
+            utils.displayRSO(np.sqrt(exp_out4[200:400,500:700]),is_display=False,
+                             path='{0}/{1}_{2}_detail_ADMM_L{3}.png'.format(args.out_dir,
+                                                                            int(lamb*100),
+                                                                            int(beta*100),
+                                                                            args.L))
+            res="MSE for beta={0}, alpha={1}: {2}".format(beta, lamb, mse_cnn)
+            print(res)
+            file.write(res+'\n')
         
         
     

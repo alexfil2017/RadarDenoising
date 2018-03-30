@@ -45,7 +45,8 @@ def ADMM(im, beta,lamb, niter, L=1, CNNprior = None, verbose=False):
         a = z+d
         #NEWTON STEPS
         for j in range(10):
-            xtmp -= np.divide(beta*(xtmp-a)+L*alpha(np.ones(im.shape)-np.exp(im-xtmp)),
+            # add the constant L*alpha
+            xtmp -= np.divide(beta*(xtmp-a)+L*alpha*(np.ones(im.shape)-np.exp(im-xtmp)),
                               beta*np.ones(im.shape)+L*alpha*np.exp(im-xtmp))
 #             print ( np.sum((xtmp-a)**2)+np.sum(xtmp)+np.sum(np.exp(im-xtmp)))
         x = xtmp
